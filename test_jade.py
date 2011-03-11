@@ -7,3 +7,10 @@ def test_simple_tag():
     expected = ['tag', "p"]
     result = jade.parse(data)
     assert expected == result
+
+    expected = """
+<p>
+</p>
+    """.strip()
+    result = jade.to_html(data)
+    assert expected == result

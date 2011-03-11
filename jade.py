@@ -7,3 +7,10 @@ def tag():
 
 def parse(text):
     return pg.parse_string(text, tag)
+
+def to_html(text):
+    data = pg.parse_string(text, tag)
+    return """
+<p>
+</p>
+""".strip()
