@@ -3,14 +3,15 @@
 import pegger as pg
 
 def tag():
-    return "p"
+    return pg.OneOf("p", "div")
 
 def parse(text):
     return pg.parse_string(text, tag)
 
 def to_html(text):
     data = pg.parse_string(text, tag)
+    tag_name = data[1]
     return """
-<p>
-</p>
-""".strip()
+<%(tag_name)s>
+</%(tag_name)s>
+""".strip() % dict(tag_name=tag_name)

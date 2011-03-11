@@ -14,3 +14,15 @@ def test_simple_tag():
     """.strip()
     result = jade.to_html(data)
     assert expected == result
+
+    data = "div"
+    expected = ['tag', "div"]
+    result = jade.parse(data)
+    assert expected == result
+
+    expected = """
+<div>
+</div>
+    """.strip()
+    result = jade.to_html(data)
+    assert expected == result
