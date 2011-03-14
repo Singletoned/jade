@@ -51,7 +51,7 @@ def test_tag_with_id():
         result = jade.to_html(data)
         assert expected == result
 
-    for data in ["div#foo", "p#foo", "div#bar", "p#bar"]:
+    for data in ["div#foo", "p#foo", "div#bar", "p#bar", "div#foo-bar", "p#foo-bar"]:
         yield do_test, data
 
 def test_tag_with_class():
@@ -71,7 +71,7 @@ def test_tag_with_class():
         result = jade.to_html(data)
         assert expected == result
 
-    for data in ["div.foo", "p.foo", "div.bar", "p.bar"]:
+    for data in ["div.foo", "p.foo", "div.bar", "p.bar", "div.foo-bar", "p.foo-bar"]:
         yield do_test, data
 
 def test_tag_with_id_and_class():
@@ -93,5 +93,5 @@ def test_tag_with_id_and_class():
         result = jade.to_html(data)
         assert expected == result
 
-    for data in ["div#foo.bar", "p#foo.bar"]:
+    for data in ["div#foo.bar", "p#foo.bar", "div#foo-1.bar-1", "p#foo-1.bar-1"]:
         yield do_test, data

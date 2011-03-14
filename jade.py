@@ -6,6 +6,7 @@ import pegger as pg
 
 alphabet = pg.Words(string.lowercase+string.uppercase)
 alphanumerics = pg.Words(string.lowercase+string.uppercase+string.digits)
+identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-")
 
 def tag():
     return pg.AllOf(
@@ -18,12 +19,12 @@ def tag():
 def tag_id():
     return pg.AllOf(
         pg.Ignore("#"),
-        alphanumerics)
+        identifier_parts)
 
 def tag_class():
     return pg.AllOf(
         pg.Ignore("."),
-        alphanumerics)
+        identifier_parts)
 
 def parse(text):
     return pg.parse_string(text, tag)
