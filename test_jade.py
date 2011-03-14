@@ -19,16 +19,21 @@ def test_simple_tag():
         yield do_test, tag
 
 def test_tag_with_id():
-    data = "div#foo"
-    expected = ['tag',
-                "div",
-                ['tag_id', "foo"]]
-    result = jade.parse(data)
-    assert expected == result
+    def do_test(data):
+        tag, tag_id = data.split("#")
+        expected = [
+            'tag',
+            tag,
+            ['tag_id', tag_id]]
+        result = jade.parse(data)
+        assert expected == result
 
-    expected = """
-<div id="foo">
-</div>
-    """.strip()
-    result = jade.to_html(data)
-    assert expected == result
+        expected = """
+<%(tag)s id="%(tag_id)s">
+</%(tag)s>
+        """.strip() % dict(tag=tag, tag_id=tag_id)
+        result = jade.to_html(data)
+        assert expected == result
+
+    for data in ["div#foo", "p#foo", "div#bar", "p#bar"]:
+        yield do_test, data
