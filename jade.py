@@ -28,16 +28,16 @@ def tag_class():
 def parse(text):
     return pg.parse_string(text, tag)
 
+def do_render(item):
+    if isinstance(item, basestring):
+        return item
+    else:
+        return '''%s="%s"''' % (item[0][4:], item[1])
+
 def to_html(text):
     data = pg.parse_string(text, tag)
     tag_name = data[1]
-    open_tag_items = [tag_name]
-    if len(data) > 2:
-        item = data[2]
-        if item[0] == "tag_id":
-            open_tag_items.append('''id="%s"''' % data[2][1])
-        else:
-            open_tag_items.append('''class="%s"''' % data[2][1])
+    open_tag_items = [do_render(item) for item in data[1:]]
     open_tag = " ".join(open_tag_items)
     return """
 <%(open_tag)s>

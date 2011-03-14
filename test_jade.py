@@ -2,6 +2,22 @@
 
 import jade
 
+
+def test_do_render():
+    def do_test(data, expected):
+        result = jade.do_render(data)
+        assert expected == result
+
+    items = [
+        ("foo", "foo"),
+        (['tag_id', "foo"], '''id="foo"'''),
+        (['tag_class', "foo"], '''class="foo"'''),
+        (['tag_id', "bar"], '''id="bar"'''),
+        (['tag_class', "bar"], '''class="bar"'''),]
+
+    for data, expected in items:
+        yield do_test, data, expected
+
 def test_simple_tag():
     def do_test(data):
         expected = ['tag', data]
