@@ -18,12 +18,12 @@ def tag():
 def tag_id():
     return pg.AllOf(
         pg.Ignore("#"),
-        pg.Words())
+        alphanumerics)
 
 def tag_class():
     return pg.AllOf(
         pg.Ignore("."),
-        pg.Words())
+        alphanumerics)
 
 def parse(text):
     return pg.parse_string(text, tag)
