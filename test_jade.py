@@ -37,3 +37,19 @@ def test_tag_with_id():
 
     for data in ["div#foo", "p#foo", "div#bar", "p#bar"]:
         yield do_test, data
+
+def test_tag_with_class():
+    data = "div.foo"
+    expected = [
+        'tag',
+        "div",
+        ['tag_class', "foo"]]
+    result = jade.parse(data)
+    assert expected == result
+
+    expected = """
+<div class="foo">
+</div>
+    """.strip()
+    result = jade.to_html(data)
+    assert expected == result
