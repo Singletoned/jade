@@ -3,6 +3,57 @@
 import jade
 
 
+def test_make_attr():
+    def do_test(head, rest, expected):
+        result = jade.make_attr(head, rest)
+        assert expected == result
+
+    items = [
+        ('tag_id', ["foo"], '''id="foo"'''),
+        ('tag_class', ["foo"], '''class="foo"'''),
+        ('tag_id', ["bar"], '''id="bar"'''),
+        ('tag_class', ["bar"], '''class="bar"''')]
+
+    for head, rest, expected in items:
+        yield do_test, head, rest, expected
+
+def test_make_content():
+    def do_test(rest, expected):
+        result = jade.make_content("", rest)
+        assert expected == result
+
+    items = [
+        (["hello"], "hello")
+        ]
+
+    for rest, expected in items:
+        yield do_test, rest, expected
+
+def test_make_open_tag():
+    def do_test(head, rest, expected):
+        result = jade.make_open_tag(head, rest)
+        assert expected == result
+
+    items = [
+        ('open_tag', ["p"], '''<p>'''),
+        ('open_tag', ["p", ['tag_id', "foo"]], '''<p id="foo">'''),
+        ]
+
+    for head, rest, expected in items:
+        yield do_test, head, rest, expected
+
+def test_make_element():
+    def do_test(head, rest, expected):
+        result = jade.make_element(head, rest)
+        assert expected == result
+
+    items = [
+        ('element', [['open_tag', "p"]], '''<p></p>''')
+        ]
+
+    for head, rest, expected in items:
+        yield do_test, head, rest, expected
+
 def test_do_render():
     def do_test(data, expected):
         result = jade.do_render(data)
@@ -20,13 +71,12 @@ def test_do_render():
 
 def test_simple_tag():
     def do_test(data):
-        expected = ['tag', data]
+        expected = ['element', ['open_tag', data]]
         result = jade.parse(data)
         assert expected == result
 
         expected = """
-<%(data)s>
-</%(data)s>
+<%(data)s></%(data)s>
         """.strip() % dict(data=data)
         result = jade.to_html(data)
         assert expected == result
@@ -38,15 +88,15 @@ def test_tag_with_id():
     def do_test(data):
         tag, tag_id = data.split("#")
         expected = [
-            'tag',
-            tag,
-            ['tag_id', tag_id]]
+            'element',
+            ['open_tag',
+             tag,
+             ['tag_id', tag_id]]]
         result = jade.parse(data)
         assert expected == result
 
         expected = """
-<%(tag)s id="%(tag_id)s">
-</%(tag)s>
+<%(tag)s id="%(tag_id)s"></%(tag)s>
         """.strip() % dict(tag=tag, tag_id=tag_id)
         result = jade.to_html(data)
         assert expected == result
@@ -58,15 +108,15 @@ def test_tag_with_class():
     def do_test(data):
         tag, tag_class = data.split(".")
         expected = [
-            'tag',
-            tag,
-            ['tag_class', tag_class]]
+            'element',
+            ['open_tag',
+             tag,
+             ['tag_class', tag_class]]]
         result = jade.parse(data)
         assert expected == result
 
         expected = """
-<%(tag)s class="%(tag_class)s">
-</%(tag)s>
+<%(tag)s class="%(tag_class)s"></%(tag)s>
         """.strip() % dict(tag=tag, tag_class=tag_class)
         result = jade.to_html(data)
         assert expected == result
@@ -79,19 +129,36 @@ def test_tag_with_id_and_class():
         tag, bits = data.split("#")
         tag_id, tag_class = bits.split(".")
         expected = [
-            'tag',
-            tag,
-            ['tag_id', tag_id],
-            ['tag_class', tag_class]]
+            'element',
+            ['open_tag',
+             tag,
+             ['tag_id', tag_id],
+             ['tag_class', tag_class]]]
         result = jade.parse(data)
         assert expected == result
 
         expected = """
-<%(tag)s id="%(tag_id)s" class="%(tag_class)s">
-</%(tag)s>
+<%(tag)s id="%(tag_id)s" class="%(tag_class)s"></%(tag)s>
         """.strip() % dict(tag=tag, tag_id=tag_id, tag_class=tag_class)
         result = jade.to_html(data)
         assert expected == result
 
     for data in ["div#foo.bar", "p#foo.bar", "div#foo-1.bar-1", "p#foo-1.bar-1"]:
         yield do_test, data
+
+def test_content():
+    data = "p | hello"
+    expected = [
+        'element',
+        ['open_tag',
+         "p"],
+         ['content',
+          "hello"]]
+    result = jade.parse(data)
+    assert expected == result
+
+    expected = """
+<p>hello</p>
+    """.strip()
+    result = jade.to_html(data)
+    assert expected == result

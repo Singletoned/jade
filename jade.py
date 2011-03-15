@@ -8,7 +8,13 @@ alphabet = pg.Words(string.lowercase+string.uppercase)
 alphanumerics = pg.Words(string.lowercase+string.uppercase+string.digits)
 identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-")
 
-def tag():
+def element():
+    return pg.AllOf(
+        open_tag,
+        pg.Optional(
+            content))
+
+def open_tag():
     return pg.AllOf(
         alphabet,
         pg.Optional(
@@ -26,21 +32,49 @@ def tag_class():
         pg.Ignore("."),
         identifier_parts)
 
-def parse(text):
-    return pg.parse_string(text, tag)
+def content():
+    return pg.AllOf(
+        pg.Ignore(" | "),
+        pg.Words())
 
-def do_render(item):
-    if isinstance(item, basestring):
-        return item
+def parse(text):
+    return pg.parse_string(text, element)
+
+def make_attr(head, rest):
+    attr_name = head[4:]
+    attr_value = rest[0]
+    attr = '''%s="%s"''' % (attr_name, attr_value)
+    return attr
+
+def make_content(head, rest):
+    return rest[0]
+
+def make_open_tag(head, rest):
+    tag_name = rest[0]
+    items = " ".join([do_render(i) for i in rest])
+    return '''<%s>''' % items
+
+def make_element(head, rest):
+    element_lines = [do_render(item) for item in rest]
+    element_lines.append("</%s>" % rest[0][1])
+    return "".join(element_lines)
+
+tag_funcs = {
+    'tag_id': make_attr,
+    'tag_class': make_attr,
+    'content': make_content,
+    'open_tag': make_open_tag,
+    'element': make_element,
+    }
+
+def do_render(data):
+    if isinstance(data, basestring):
+        return data
     else:
-        return '''%s="%s"''' % (item[0][4:], item[1])
+        head, rest = data[0], data[1:]
+        func = tag_funcs[head]
+        return func(head, rest)
 
 def to_html(text):
-    data = pg.parse_string(text, tag)
-    tag_name = data[1]
-    open_tag_items = [do_render(item) for item in data[1:]]
-    open_tag = " ".join(open_tag_items)
-    return """
-<%(open_tag)s>
-</%(tag_name)s>
-""".strip() % dict(open_tag=open_tag, tag_name=tag_name)
+    data = pg.parse_string(text, element)
+    return do_render(data)
