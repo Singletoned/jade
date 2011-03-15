@@ -147,18 +147,28 @@ def test_tag_with_id_and_class():
         yield do_test, data
 
 def test_content():
-    data = "p | hello"
-    expected = [
-        'element',
-        ['open_tag',
-         "p"],
-         ['content',
-          "hello"]]
-    result = jade.parse(data)
-    assert expected == result
+    def do_test(data):
+        tag, content = [item.strip() for item in data.split("|")]
+        expected = [
+            'element',
+            ['open_tag',
+             tag],
+             ['content',
+              content]]
+        result = jade.parse(data)
+        assert expected == result
 
-    expected = """
-<p>hello</p>
-    """.strip()
-    result = jade.to_html(data)
-    assert expected == result
+        expected = """
+    <%(tag)s>%(content)s</%(tag)s>
+        """.strip() % dict(tag=tag, content=content)
+        result = jade.to_html(data)
+        assert expected == result
+
+    items = [
+        "p | hello",
+        "div | hello",
+        "p | foo",
+        "div | bar"]
+
+    for item in items:
+        yield do_test, item
