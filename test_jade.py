@@ -184,7 +184,7 @@ def test_content():
 
         expected = """
 <%(tag)s>
-%(content)s
+  %(content)s
 </%(tag)s>
         """.strip() % dict(tag=tag, content=content)
         result = jade.to_html(data)
@@ -220,7 +220,9 @@ div#foo.bar
 
     expected = '''
 <div id="foo" class="bar">
-<p>A paragraph</p>
+  <p>
+    A paragraph
+  </p>
 </div>
     '''.strip()
     result = jade.to_html(data)

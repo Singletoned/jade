@@ -46,6 +46,10 @@ def content():
 def parse(text):
     return pg.parse_string(text, element)
 
+def indent(data):
+    for item in data:
+        yield "  %s" % item
+
 def make_attr(head, rest):
     rest = iter(rest)
     attr_name = head[4:]
@@ -72,7 +76,12 @@ def make_element(head, rest):
     open_tag = make_open_tag(open_tag.next(), open_tag)
     yield open_tag
     for item in rest:
-        yield "".join(do_render(item))
+        result = do_render(item)
+        if isinstance(result, basestring):
+            yield "  " + result
+        else:
+            for sub_item in indent(result):
+                yield sub_item
     close_tag = make_close_tag(close_tag.next(), close_tag)
     yield close_tag
 
