@@ -42,6 +42,19 @@ def test_make_open_tag():
     for head, rest, expected in items:
         yield do_test, head, rest, expected
 
+def test_make_close_tag():
+    def do_test(head, rest, expected):
+        result = jade.make_close_tag(head, rest)
+        assert expected == result
+
+    items = [
+        ('open_tag', ["p"], '''</p>'''),
+        ('open_tag', ["p", ['tag_id', "foo"]], '''</p>'''),
+        ]
+
+    for head, rest, expected in items:
+        yield do_test, head, rest, expected
+
 def test_make_element():
     def do_test(head, rest, expected):
         result = jade.make_element(head, rest)

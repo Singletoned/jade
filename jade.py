@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import string
+import itertools
 
 import pegger as pg
 
@@ -50,14 +51,22 @@ def make_content(head, rest):
     return rest[0]
 
 def make_open_tag(head, rest):
-    tag_name = rest[0]
+    rest = iter(rest)
     items = " ".join([do_render(i) for i in rest])
     return '''<%s>''' % items
 
+def make_close_tag(head, rest):
+    tag_name = iter(rest).next()
+    return '''</%s>''' % tag_name
+
 def make_element(head, rest):
-    element_lines = [do_render(item) for item in rest]
-    element_lines.append("</%s>" % rest[0][1])
-    return "".join(element_lines)
+    rest = iter(rest)
+    open_tag, close_tag = itertools.tee(rest.next())
+    open_tag = make_open_tag(open_tag.next(), open_tag)
+    close_tag = make_close_tag(close_tag.next(), close_tag)
+    elements = [do_render(item) for item in rest]
+    elements = [open_tag] + elements + [close_tag]
+    return "".join(elements)
 
 tag_funcs = {
     'tag_id': make_attr,
@@ -67,6 +76,19 @@ tag_funcs = {
     'element': make_element,
     }
 
+tag_dispatchers = dict(
+    element=make_element,
+    open_tag=make_open_tag,
+    )
+
+def generate_html(data):
+    "Convert a tree to flattened html"
+    data = iter(data)
+    head = data.next()
+    dispatcher = tag_dispatchers[head]
+    for item in dispatcher(head, data):
+        yield item
+
 def do_render(data):
     if isinstance(data, basestring):
         return data
@@ -75,6 +97,7 @@ def do_render(data):
         func = tag_funcs[head]
         return func(head, rest)
 
-def to_html(text):
-    data = pg.parse_string(text, element)
-    return do_render(data)
+def to_html(text, pattern=element):
+    data = pg.parse_string(text, pattern)
+    content = generate_html(data)
+    return "".join(content)
