@@ -65,10 +65,11 @@ def make_element(head, rest):
     rest = iter(rest)
     open_tag, close_tag = itertools.tee(rest.next())
     open_tag = make_open_tag(open_tag.next(), open_tag)
+    yield open_tag
+    for item in rest:
+        yield "".join(do_render(item))
     close_tag = make_close_tag(close_tag.next(), close_tag)
-    elements = [do_render(item) for item in rest]
-    elements = [open_tag] + elements + [close_tag]
-    return "".join(elements)
+    yield close_tag
 
 tag_funcs = {
     'tag_id': make_attr,

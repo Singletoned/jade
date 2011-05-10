@@ -3,6 +3,13 @@
 import jade
 
 
+def listify(data):
+    if isinstance(data, basestring):
+        return data
+    else:
+        return [listify(item) for item in data]
+
+
 def test_make_attr():
     def do_test(head, rest, expected):
         result = jade.make_attr(head, rest)
@@ -57,11 +64,11 @@ def test_make_close_tag():
 
 def test_make_element():
     def do_test(head, rest, expected):
-        result = jade.make_element(head, rest)
+        result = listify(jade.make_element(head, rest))
         assert expected == result
 
     items = [
-        ('element', [['open_tag', "p"]], '''<p></p>''')
+        ('element', [['open_tag', "p"]], ['''<p>''', '''</p>'''])
         ]
 
     for head, rest, expected in items:
