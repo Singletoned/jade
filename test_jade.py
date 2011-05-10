@@ -96,7 +96,8 @@ def test_simple_tag():
         assert expected == result
 
         expected = """
-<%(data)s></%(data)s>
+<%(data)s>
+</%(data)s>
         """.strip() % dict(data=data)
         result = jade.to_html(data)
         assert expected == result
@@ -116,7 +117,8 @@ def test_tag_with_id():
         assert expected == result
 
         expected = """
-<%(tag)s id="%(tag_id)s"></%(tag)s>
+<%(tag)s id="%(tag_id)s">
+</%(tag)s>
         """.strip() % dict(tag=tag, tag_id=tag_id)
         result = jade.to_html(data)
         assert expected == result
@@ -136,7 +138,8 @@ def test_tag_with_class():
         assert expected == result
 
         expected = """
-<%(tag)s class="%(tag_class)s"></%(tag)s>
+<%(tag)s class="%(tag_class)s">
+</%(tag)s>
         """.strip() % dict(tag=tag, tag_class=tag_class)
         result = jade.to_html(data)
         assert expected == result
@@ -158,7 +161,8 @@ def test_tag_with_id_and_class():
         assert expected == result
 
         expected = """
-<%(tag)s id="%(tag_id)s" class="%(tag_class)s"></%(tag)s>
+<%(tag)s id="%(tag_id)s" class="%(tag_class)s">
+</%(tag)s>
         """.strip() % dict(tag=tag, tag_id=tag_id, tag_class=tag_class)
         result = jade.to_html(data)
         assert expected == result
@@ -179,7 +183,9 @@ def test_content():
         assert expected == result
 
         expected = """
-    <%(tag)s>%(content)s</%(tag)s>
+<%(tag)s>
+%(content)s
+</%(tag)s>
         """.strip() % dict(tag=tag, content=content)
         result = jade.to_html(data)
         assert expected == result
@@ -210,4 +216,12 @@ div#foo.bar
          ['content',
           "A paragraph"]]]
     result = jade.parse(data)
+    assert expected == result
+
+    expected = '''
+<div id="foo" class="bar">
+<p>A paragraph</p>
+</div>
+    '''.strip()
+    result = jade.to_html(data)
     assert expected == result

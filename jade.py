@@ -109,4 +109,4 @@ def do_render(data):
 def to_html(text, pattern=element):
     data = pg.parse_string(text, pattern)
     content = generate_html(data)
-    return "".join(content)
+    return "\n".join(content)
