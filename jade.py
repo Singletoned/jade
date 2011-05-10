@@ -13,7 +13,12 @@ def element():
     return pg.AllOf(
         open_tag,
         pg.Optional(
-            content))
+            pg.OneOf(
+                content,
+                pg.AllOf(
+                    pg.Ignore("\n"),
+                    pg.Indented(
+                        element)))))
 
 def open_tag():
     return pg.AllOf(

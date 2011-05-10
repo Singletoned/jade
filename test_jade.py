@@ -192,3 +192,22 @@ def test_content():
 
     for item in items:
         yield do_test, item
+
+def test_nested():
+    data = """
+div#foo.bar
+  p | A paragraph
+    """.strip()
+    expected = [
+        'element',
+        ['open_tag',
+         "div",
+         ['tag_id', "foo"],
+         ['tag_class', "bar"]],
+        ['element',
+         ['open_tag',
+          "p"],
+         ['content',
+          "A paragraph"]]]
+    result = jade.parse(data)
+    assert expected == result
