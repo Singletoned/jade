@@ -42,13 +42,15 @@ def parse(text):
     return pg.parse_string(text, element)
 
 def make_attr(head, rest):
+    rest = iter(rest)
     attr_name = head[4:]
-    attr_value = rest[0]
+    attr_value = rest.next()
     attr = '''%s="%s"''' % (attr_name, attr_value)
     return attr
 
 def make_content(head, rest):
-    return rest[0]
+    rest = iter(rest)
+    return rest.next()
 
 def make_open_tag(head, rest):
     rest = iter(rest)
@@ -93,7 +95,8 @@ def do_render(data):
     if isinstance(data, basestring):
         return data
     else:
-        head, rest = data[0], data[1:]
+        rest = iter(data)
+        head = rest.next()
         func = tag_funcs[head]
         return func(head, rest)
 
