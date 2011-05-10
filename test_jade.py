@@ -173,8 +173,8 @@ def test_content():
             'element',
             ['open_tag',
              tag],
-             ['content',
-              content]]
+            ['content',
+             content]]
         result = jade.parse(data)
         assert expected == result
 
