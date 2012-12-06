@@ -39,9 +39,14 @@ def tag_class():
         identifier_parts)
 
 def attribute():
-    return pg.Join(
-        pg.Many(
-            pg.AllOf(
+    return pg.AllOf(
+        pg.Join(
+            pg.Many(
+                pg.Not(
+                    "="))),
+        pg.Ignore("="),
+        pg.Join(
+            pg.Many(
                 pg.Not(
                     pg.OneOf(",", ")")))))
 

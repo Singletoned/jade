@@ -8,7 +8,7 @@ import jade
 class test_attribute_list(unittest.TestCase):
     def test_simple(self):
         data = '''(href="foo")'''
-        expected = ['attribute_list', ['attribute', '''href="foo"''']]
+        expected = ['attribute_list', ['attribute', "href", '''"foo"''']]
         result = jade.parse(data, jade.attribute_list)
         assert expected == result
 
@@ -16,7 +16,7 @@ class test_attribute_list(unittest.TestCase):
         data = '''(href="foo", title="Foo!")'''
         expected = [
             'attribute_list',
-            ['attribute', '''href="foo"'''],
-            ['attribute', '''title="Foo!"''']]
+            ['attribute', "href", '''"foo"'''],
+            ['attribute', "title", '''"Foo!"''']]
         result = jade.parse(data, jade.attribute_list)
         assert expected == result
