@@ -38,6 +38,18 @@ def tag_class():
         pg.Ignore("."),
         identifier_parts)
 
+def attribute():
+    return pg.Join(
+        pg.Many(
+            pg.AllOf(
+                pg.Not(")",))))
+
+def attribute_list():
+    return pg.AllOf(
+        pg.Ignore("("),
+        pg.OneOf(attribute),
+        pg.Ignore(")"))
+
 def content():
     return pg.AllOf(
         pg.Ignore(" | "),
