@@ -43,8 +43,8 @@ def content():
         pg.Ignore(" | "),
         pg.Words())
 
-def parse(text):
-    return pg.parse_string(text, element)
+def parse(text, pattern=element):
+    return pg.parse_string(text, pattern)
 
 def indent(data):
     for item in data:
