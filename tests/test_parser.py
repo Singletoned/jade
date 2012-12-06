@@ -11,3 +11,12 @@ class test_attribute_list(unittest.TestCase):
         expected = ['attribute_list', ['attribute', '''href="foo"''']]
         result = jade.parse(data, jade.attribute_list)
         assert expected == result
+
+    def test_multiple(self):
+        data = '''(href="foo", title="Foo!")'''
+        expected = [
+            'attribute_list',
+            ['attribute', '''href="foo"'''],
+            ['attribute', '''title="Foo!"''']]
+        result = jade.parse(data, jade.attribute_list)
+        assert expected == result

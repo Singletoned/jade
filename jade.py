@@ -42,12 +42,17 @@ def attribute():
     return pg.Join(
         pg.Many(
             pg.AllOf(
-                pg.Not(")",))))
+                pg.Not(
+                    pg.OneOf(",", ")")))))
 
 def attribute_list():
     return pg.AllOf(
         pg.Ignore("("),
         pg.OneOf(attribute),
+        pg.Optional(
+            pg.AllOf(
+                pg.Ignore(", "),
+                attribute)),
         pg.Ignore(")"))
 
 def content():
