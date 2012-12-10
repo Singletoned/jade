@@ -7,6 +7,7 @@ import wiseguy.html_tags
 
 import pegger as pg
 
+
 alphabet = pg.Words(string.lowercase+string.uppercase)
 alphanumerics = pg.Words(string.lowercase+string.uppercase+string.digits)
 identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-_")
