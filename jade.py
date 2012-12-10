@@ -50,22 +50,33 @@ def tag_class():
         pg.Ignore("."),
         identifier_parts)
 
+def quoted_string():
+    return pg.OneOf(
+        pg.AllOf(
+            pg.Ignore("'"),
+            pg.Join(
+                pg.Many(
+                    pg.Not("'"))),
+            pg.Ignore("'")),
+        pg.AllOf(
+            pg.Ignore('"'),
+            pg.Join(
+                pg.Many(
+                    pg.Not('"'))),
+            pg.Ignore('"')))
+
 def attribute():
     return pg.AllOf(
         pg.Join(
             pg.Many(
-                pg.Not(
-                    "="))),
+                pg.Not("="))),
         pg.Ignore("="),
-        pg.Join(
-            pg.Many(
-                pg.Not(
-                    pg.OneOf(",", ")")))))
+        quoted_string)
 
 def attribute_list():
     return pg.AllOf(
         pg.Ignore("("),
-        pg.OneOf(attribute),
+        attribute,
         pg.Optional(
             pg.AllOf(
                 pg.Ignore(", "),
