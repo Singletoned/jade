@@ -9,7 +9,7 @@ import pegger as pg
 
 alphabet = pg.Words(string.lowercase+string.uppercase)
 alphanumerics = pg.Words(string.lowercase+string.uppercase+string.digits)
-identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-")
+identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-_")
 
 def document():
     return pg.AllOf(
