@@ -11,6 +11,14 @@ alphabet = pg.Words(string.lowercase+string.uppercase)
 alphanumerics = pg.Words(string.lowercase+string.uppercase+string.digits)
 identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-")
 
+def document():
+    return pg.AllOf(
+        element,
+        pg.Optional(
+            pg.AllOf(
+                pg.Ignore("\n"),
+                element)))
+
 def element():
     return pg.AllOf(
         open_tag,
@@ -117,15 +125,23 @@ def make_element(head, rest):
             el.extend(sub_el)
     yield el
 
+def make_document(head, rest):
+    rest = list(rest)
+    for el in rest:
+        for item in do_render(el):
+            yield item
+
 tag_funcs = {
     'tag_id': make_attr,
     'tag_class': make_attr,
     'content': make_content,
     'open_tag': make_open_tag,
     'element': make_element,
+    'document': make_document,
     }
 
 tag_dispatchers = dict(
+    document=make_document,
     element=make_element,
     open_tag=make_open_tag,
     )
@@ -147,7 +163,7 @@ def do_render(data):
         func = tag_funcs[head]
         return func(head, rest)
 
-def to_html(text, pattern=element):
+def to_html(text, pattern=document):
     data = pg.parse_string(text, pattern)
     content = generate_html(data)
     return "".join([i.to_string() for i in content])
