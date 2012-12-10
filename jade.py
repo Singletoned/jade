@@ -115,6 +115,14 @@ def make_close_tag(head, rest):
     tag_name = iter(rest).next()
     return '''</%s>''' % tag_name
 
+def add_attributes(el, attributes):
+    attributes = list(attributes)
+    for (_, key, value) in attributes:
+        if key == "class":
+            el.add_class(None, value[1])
+        else:
+            el.attrib[key] = value[1]
+
 def make_element(head, rest):
     rest = list(rest)
     rest = iter(rest)
@@ -124,7 +132,9 @@ def make_element(head, rest):
     el = getattr(wiseguy.html_tags, tag_name.upper())()
     open_tag = list(open_tag)
     for item in open_tag:
-        if item[0] == 'tag_class':
+        if item[0] == 'attribute_list':
+            add_attributes(el, item[1:])
+        elif item[0] == 'tag_class':
             el.add_class(None, item[1])
         elif item[0] == 'tag_id':
             el.attrib['id'] = item[1]
