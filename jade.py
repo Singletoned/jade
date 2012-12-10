@@ -3,6 +3,8 @@
 import string
 import itertools
 
+import wiseguy.html_tags
+
 import pegger as pg
 
 alphabet = pg.Words(string.lowercase+string.uppercase)
@@ -13,12 +15,10 @@ def element():
     return pg.AllOf(
         open_tag,
         pg.Optional(
-            pg.OneOf(
-                content,
-                pg.AllOf(
-                    pg.Ignore("\n"),
-                    pg.Indented(
-                        element)))))
+            pg.AllOf(
+                pg.Ignore("\n"),
+                pg.Indented(
+                    element))))
 
 def open_tag():
     return pg.AllOf(
@@ -26,7 +26,11 @@ def open_tag():
         pg.Optional(
             tag_id),
         pg.Optional(
-            tag_class))
+            tag_class),
+        pg.Optional(
+            attribute_list),
+        pg.Optional(
+            content))
 
 def tag_id():
     return pg.AllOf(
@@ -93,19 +97,25 @@ def make_close_tag(head, rest):
     return '''</%s>''' % tag_name
 
 def make_element(head, rest):
+    rest = list(rest)
     rest = iter(rest)
-    open_tag, close_tag = itertools.tee(rest.next())
-    open_tag = make_open_tag(open_tag.next(), open_tag)
-    yield open_tag
+    open_tag = iter(rest.next())
+    _ = open_tag.next()
+    tag_name = open_tag.next()
+    el = getattr(wiseguy.html_tags, tag_name.upper())()
+    open_tag = list(open_tag)
+    for item in open_tag:
+        if item[0] == 'tag_class':
+            el.add_class(None, item[1])
+        elif item[0] == 'tag_id':
+            el.attrib['id'] = item[1]
+        elif item[0] == 'content':
+            el.text = item[1]
     for item in rest:
-        result = do_render(item)
-        if isinstance(result, basestring):
-            yield "  " + result
-        else:
-            for sub_item in indent(result):
-                yield sub_item
-    close_tag = make_close_tag(close_tag.next(), close_tag)
-    yield close_tag
+        if item[0] == 'element':
+            sub_el = make_element(item[0], [item[1]])
+            el.extend(sub_el)
+    yield el
 
 tag_funcs = {
     'tag_id': make_attr,
@@ -140,4 +150,4 @@ def do_render(data):
 def to_html(text, pattern=element):
     data = pg.parse_string(text, pattern)
     content = generate_html(data)
-    return "\n".join(content)
+    return "".join([i.to_string() for i in content])

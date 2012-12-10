@@ -64,11 +64,12 @@ def test_make_close_tag():
 
 def test_make_element():
     def do_test(head, rest, expected):
-        result = listify(jade.make_element(head, rest))
+        result = jade.make_element(head, rest)
+        result = [el.to_string() for el in result]
         assert expected == result
 
     items = [
-        ('element', [['open_tag', "p"]], ['''<p>''', '''</p>'''])
+        ('element', [['open_tag', "p"]], ['''<p></p>\n'''])
         ]
 
     for head, rest, expected in items:
@@ -95,10 +96,7 @@ def test_simple_tag():
         result = jade.parse(data)
         assert expected == result
 
-        expected = """
-<%(data)s>
-</%(data)s>
-        """.strip() % dict(data=data)
+        expected = "<%(data)s></%(data)s>\n" % dict(data=data)
         result = jade.to_html(data)
         assert expected == result
 
@@ -116,10 +114,7 @@ def test_tag_with_id():
         result = jade.parse(data)
         assert expected == result
 
-        expected = """
-<%(tag)s id="%(tag_id)s">
-</%(tag)s>
-        """.strip() % dict(tag=tag, tag_id=tag_id)
+        expected = """<%(tag)s id="%(tag_id)s"></%(tag)s>\n""" % dict(tag=tag, tag_id=tag_id)
         result = jade.to_html(data)
         assert expected == result
 
@@ -137,10 +132,7 @@ def test_tag_with_class():
         result = jade.parse(data)
         assert expected == result
 
-        expected = """
-<%(tag)s class="%(tag_class)s">
-</%(tag)s>
-        """.strip() % dict(tag=tag, tag_class=tag_class)
+        expected = """<%(tag)s class="%(tag_class)s"></%(tag)s>\n""" % dict(tag=tag, tag_class=tag_class)
         result = jade.to_html(data)
         assert expected == result
 
@@ -160,10 +152,7 @@ def test_tag_with_id_and_class():
         result = jade.parse(data)
         assert expected == result
 
-        expected = """
-<%(tag)s id="%(tag_id)s" class="%(tag_class)s">
-</%(tag)s>
-        """.strip() % dict(tag=tag, tag_id=tag_id, tag_class=tag_class)
+        expected = """<%(tag)s id="%(tag_id)s" class="%(tag_class)s"></%(tag)s>\n""" % dict(tag=tag, tag_id=tag_id, tag_class=tag_class)
         result = jade.to_html(data)
         assert expected == result
 
@@ -176,17 +165,13 @@ def test_content():
         expected = [
             'element',
             ['open_tag',
-             tag],
-            ['content',
-             content]]
+             tag,
+             ['content',
+              content]]]
         result = jade.parse(data)
         assert expected == result
 
-        expected = """
-<%(tag)s>
-  %(content)s
-</%(tag)s>
-        """.strip() % dict(tag=tag, content=content)
+        expected = """<%(tag)s>%(content)s</%(tag)s>\n""" % dict(tag=tag, content=content)
         result = jade.to_html(data)
         assert expected == result
 
@@ -212,18 +197,12 @@ div#foo.bar
          ['tag_class', "bar"]],
         ['element',
          ['open_tag',
-          "p"],
-         ['content',
-          "A paragraph"]]]
+          "p",
+          ['content',
+           "A paragraph"]]]]
     result = jade.parse(data)
     assert expected == result
 
-    expected = '''
-<div id="foo" class="bar">
-  <p>
-    A paragraph
-  </p>
-</div>
-    '''.strip()
+    expected = '''<div id="foo" class="bar"><p>A paragraph</p></div>\n'''
     result = jade.to_html(data)
     assert expected == result
