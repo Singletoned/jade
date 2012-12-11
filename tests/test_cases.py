@@ -12,8 +12,8 @@ def test_cases():
         jade_file = cases.child(filename+".jade")
         jade_src = jade_file.text()
         html_file = cases.child(filename+".html")
-        html_src = html_file.text()
-        result = jade.to_html(jade_src)
+        html_src = html_file.text().strip()
+        result = jade.to_html(jade_src, tidy=True)
         assert html_src == result
 
     filenames = cases.glob("*.jade")

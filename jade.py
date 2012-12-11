@@ -185,7 +185,19 @@ def do_render(data):
         func = tag_funcs[head]
         return func(head, rest)
 
-def to_html(text, pattern=document):
+def generate_elements(text, pattern=document):
     data = pg.parse_string(text, pattern)
-    content = generate_html(data)
-    return "".join([i.to_string() for i in content])
+    elements = generate_html(data)
+    return elements
+
+def generate_strings(text, pattern, tidy=False):
+    elements = generate_elements(text, pattern)
+    if tidy:
+        for el in elements:
+            yield wiseguy.html_tidy.tidy_html(el)
+    else:
+        for el in elements:
+            yield el.to_string()
+
+def to_html(text, pattern=document, tidy=False):
+    return "".join(generate_strings(text, pattern, tidy=tidy))
