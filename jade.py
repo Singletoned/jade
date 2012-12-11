@@ -16,9 +16,10 @@ def document():
     return pg.AllOf(
         element,
         pg.Optional(
+            pg.Many(
             pg.AllOf(
                 pg.Ignore("\n"),
-                element)))
+                element))))
 
 def element():
     return pg.AllOf(
