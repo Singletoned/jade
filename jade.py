@@ -25,6 +25,10 @@ def element():
     return pg.AllOf(
         open_tag,
         pg.Optional(
+            pg.AllOf(
+                pg.Ignore(": ",),
+                element)),
+        pg.Optional(
             pg.Many(
                 pg.AllOf(
                     pg.Ignore("\n"),
