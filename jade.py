@@ -143,7 +143,7 @@ def make_element(head, rest):
             el.text = item[1]
     for item in rest:
         if item[0] == 'element':
-            sub_el = make_element(item[0], [item[1]])
+            sub_el = make_element(item[0], item[1:])
             el.extend(sub_el)
     yield el
 
