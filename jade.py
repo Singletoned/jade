@@ -17,9 +17,9 @@ def document():
         element,
         pg.Optional(
             pg.Many(
-            pg.AllOf(
-                pg.Ignore("\n"),
-                element))))
+                pg.AllOf(
+                    pg.Ignore("\n"),
+                    element))))
 
 def element():
     return pg.AllOf(
