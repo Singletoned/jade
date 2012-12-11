@@ -71,12 +71,12 @@ def quoted_string():
             pg.Ignore('"')))
 
 def attribute():
-    return pg.AllOf(
-        pg.Join(
-            pg.Many(
-                pg.Not("="))),
-        pg.Ignore("="),
-        quoted_string)
+    return pg.OneOf(
+        pg.AllOf(
+            identifier_parts,
+            pg.Ignore("="),
+            quoted_string),
+        alphanumerics)
 
 def attribute_list():
     return pg.AllOf(
@@ -124,7 +124,12 @@ def make_close_tag(head, rest):
 
 def add_attributes(el, attributes):
     attributes = list(attributes)
-    for (_, key, value) in attributes:
+    for item in attributes:
+        if len(item) == 2:
+            _, key = item
+            value = [None, key]
+        else:
+            (_, key, value) = item
         if key == "class":
             el.add_class(None, value[1])
         else:
