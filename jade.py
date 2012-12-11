@@ -82,9 +82,11 @@ def attribute_list():
         pg.Ignore("("),
         attribute,
         pg.Optional(
-            pg.AllOf(
-                pg.Ignore(", "),
-                attribute)),
+            pg.Many(
+                pg.AllOf(
+                    pg.Ignore(","),
+                    pg.Ignore(pg.Optional(" ")),
+                    attribute))),
         pg.Ignore(")"))
 
 def content():
