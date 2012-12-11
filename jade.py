@@ -31,7 +31,7 @@ def element():
 
 def open_tag():
     return pg.AllOf(
-        alphabet,
+        alphanumerics,
         pg.Optional(
             tag_id),
         pg.Optional(
