@@ -45,7 +45,17 @@ def open_tag():
                     tag_class,
                     attribute_list))),
         pg.Optional(
-            content))
+            pg.OneOf(
+                content,
+                code)))
+
+def code():
+    return pg.AllOf(
+        pg.Ignore("= "),
+        pg.Join(
+            pg.Many(
+                pg.Not(
+                    "\n"))))
 
 def tag_id():
     return pg.AllOf(
@@ -74,12 +84,22 @@ def quoted_string():
                         pg.Not('"')))),
             pg.Ignore('"')))
 
+def attribute_value_code():
+    return pg.Join(
+        pg.Many(
+            pg.Not(
+                pg.OneOf(
+                    ")",
+                    ","))))
+
 def attribute():
     return pg.OneOf(
         pg.AllOf(
             identifier_parts,
             pg.Ignore("="),
-            quoted_string),
+            pg.OneOf(
+                quoted_string,
+                attribute_value_code)),
         alphanumerics)
 
 def attribute_list():
@@ -131,13 +151,23 @@ def add_attributes(el, attributes):
     for item in attributes:
         if len(item) == 2:
             _, key = item
-            value = [None, key]
+            value_pair = [None, key]
         else:
-            (_, key, value) = item
+            (_, key, value_pair) = item
+        if value_pair[0] == "attribute_value_code":
+            value = eval(value_pair[1])
+        else:
+            value = value_pair[1]
+        if value is None:
+            value = ""
+        elif value is False:
+            continue
+        else:
+            value = str(value)
         if key == "class":
-            el.add_class(None, value[1])
+            el.add_class(None, value)
         else:
-            el.attrib[key] = value[1]
+            el.attrib[key] = value
 
 def make_element(head, rest):
     rest = list(rest)
@@ -156,6 +186,11 @@ def make_element(head, rest):
             el.attrib['id'] = item[1]
         elif item[0] == 'content':
             el.text = item[1]
+        elif item[0] == 'code':
+            val = eval(item[1])
+            if val is None:
+                val = ""
+            el.text = str(val)
     for item in rest:
         if item[0] == 'element':
             sub_el = make_element(item[0], item[1:])
