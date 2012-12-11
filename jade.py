@@ -33,11 +33,11 @@ def open_tag():
     return pg.AllOf(
         alphanumerics,
         pg.Optional(
-            tag_id),
-        pg.Optional(
-            tag_class),
-        pg.Optional(
-            attribute_list),
+            pg.Many(
+                pg.OneOf(
+                    tag_id,
+                    tag_class,
+                    attribute_list))),
         pg.Optional(
             content))
 
