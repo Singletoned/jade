@@ -55,15 +55,17 @@ def quoted_string():
     return pg.OneOf(
         pg.AllOf(
             pg.Ignore("'"),
-            pg.Join(
-                pg.Many(
-                    pg.Not("'"))),
+            pg.Optional(
+                pg.Join(
+                    pg.Many(
+                        pg.Not("'")))),
             pg.Ignore("'")),
         pg.AllOf(
             pg.Ignore('"'),
-            pg.Join(
-                pg.Many(
-                    pg.Not('"'))),
+            pg.Optional(
+                pg.Join(
+                    pg.Many(
+                        pg.Not('"')))),
             pg.Ignore('"')))
 
 def attribute():
