@@ -3,6 +3,8 @@
 import string
 import itertools
 
+import lxml
+
 import wiseguy.html_tags
 
 import pegger as pg
@@ -14,12 +16,16 @@ identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-_"
 
 def document():
     return pg.AllOf(
-        element,
+        pg.OneOf(
+            element,
+            comment),
         pg.Optional(
             pg.Many(
                 pg.AllOf(
                     pg.Ignore("\n"),
-                    element))))
+                    pg.OneOf(
+                        element,
+                        comment)))))
 
 def element():
     return pg.AllOf(
@@ -33,7 +39,22 @@ def element():
                 pg.AllOf(
                     pg.Ignore("\n"),
                     pg.Indented(
-                        element)))))
+                        pg.OneOf(
+                            element,
+                            comment))))))
+
+def comment():
+    return pg.AllOf(
+        pg.Optional(
+            pg.Ignore(
+                pg.Many(
+                    " "))),
+        pg.Ignore(
+            "// "),
+        pg.Join(
+            pg.Many(
+                pg.Not(
+                    "\n"))))
 
 def open_tag():
     return pg.AllOf(
@@ -169,6 +190,10 @@ def add_attributes(el, attributes):
         else:
             el.attrib[key] = value
 
+def make_comment(head, rest):
+    rest = iter(rest)
+    yield lxml.etree.Comment(rest.next())
+
 def make_element(head, rest):
     rest = list(rest)
     rest = iter(rest)
@@ -195,6 +220,8 @@ def make_element(head, rest):
         if item[0] == 'element':
             sub_el = make_element(item[0], item[1:])
             el.extend(sub_el)
+        elif item[0] == 'comment':
+            el.extend(make_comment(item[0], item[1:]))
     yield el
 
 def make_document(head, rest):
@@ -210,6 +237,7 @@ tag_funcs = {
     'open_tag': make_open_tag,
     'element': make_element,
     'document': make_document,
+    'comment': make_comment,
     }
 
 tag_dispatchers = dict(
