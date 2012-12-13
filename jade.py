@@ -246,14 +246,6 @@ tag_dispatchers = dict(
     open_tag=make_open_tag,
     )
 
-def generate_html(data):
-    "Convert a tree to flattened html"
-    data = iter(data)
-    head = data.next()
-    dispatcher = tag_dispatchers[head]
-    for item in dispatcher(head, data):
-        yield item
-
 def do_render(data):
     if isinstance(data, basestring):
         return data
@@ -268,8 +260,11 @@ def generate_data(text, pattern=document):
     return data
 
 def generate_elements(data):
-    elements = generate_html(data)
-    return elements
+    data = iter(data)
+    head = data.next()
+    dispatcher = tag_dispatchers[head]
+    for item in dispatcher(head, data):
+        yield item
 
 def generate_strings(elements, tidy=False):
     if tidy:
