@@ -29,6 +29,7 @@ class test_element(unittest.TestCase):
             ['open_tag', 'a',
              ['attribute_list',
               ['attribute', 'href',
-               ['quoted_string', "/contact"]]]]]
+               ['quoted_string', "/contact"]]],
+             ['content', 'contact']]]
         result = jade.parse(data, jade.element)
         assert expected == result

@@ -137,7 +137,10 @@ def attribute_list():
 
 def content():
     return pg.AllOf(
-        pg.Ignore(" | "),
+        pg.Ignore(
+            pg.OneOf(
+                " | ",
+                " ")),
         pg.Words())
 
 def parse(text, pattern=element):
