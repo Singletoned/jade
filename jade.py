@@ -255,4 +255,4 @@ def to_html(text, pattern=document, tidy=False, context=None):
     data = generate_data(text, pattern=document)
     elements = generate_elements(data)
     strings = generate_strings(elements, tidy=tidy)
-    return "".join(strings)
+    return "\n".join(strings)
