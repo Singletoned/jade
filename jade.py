@@ -13,9 +13,20 @@ import pegger as pg
 alphabet = pg.Words(string.lowercase+string.uppercase)
 alphanumerics = pg.Words(string.lowercase+string.uppercase+string.digits)
 identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-_")
+whitespace = pg.Words(" \t")
+
+def blank_line():
+    return pg.AllOf(
+        pg.Optional(
+            whitespace),
+        "\n")
 
 def document():
     return pg.AllOf(
+        pg.Ignore(
+            pg.Optional(
+                pg.Many(
+                    blank_line))),
         pg.OneOf(
             element,
             comment),
