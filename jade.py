@@ -295,7 +295,10 @@ def generate_elements(data, context=None):
 def generate_strings(elements, tidy=False):
     if tidy:
         for el in elements:
-            yield wiseguy.html_tidy.tidy_html(el)
+            if isinstance(el, DocType):
+                yield el.to_string()
+            else:
+                yield wiseguy.html_tidy.tidy_html(el)
     else:
         for el in elements:
             yield el.to_string()

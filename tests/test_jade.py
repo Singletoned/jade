@@ -230,6 +230,12 @@ html
     result = jade.generate_data(data)
     assert expected == result
 
-    expected = '''<!DOCTYPE html><html><body><div></div></body></html>\n'''
-    result = jade.to_html(data)
+    expected = '''
+<!DOCTYPE html>
+<html>
+  <body>
+    <div></div>
+  </body>
+</html>'''.strip()
+    result = jade.to_html(data, tidy=True)
     assert expected == result
