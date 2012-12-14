@@ -93,7 +93,7 @@ def test_do_render():
 def test_simple_tag():
     def do_test(data):
         expected = ['element', ['open_tag', data]]
-        result = jade.parse(data)
+        result = jade.generate_data(data, pattern=jade.element)
         assert expected == result
 
         expected = "<%(data)s></%(data)s>\n" % dict(data=data)
@@ -111,7 +111,7 @@ def test_tag_with_id():
             ['open_tag',
              tag,
              ['tag_id', tag_id]]]
-        result = jade.parse(data)
+        result = jade.generate_data(data, pattern=jade.element)
         assert expected == result
 
         expected = """<%(tag)s id="%(tag_id)s"></%(tag)s>\n""" % dict(tag=tag, tag_id=tag_id)
@@ -129,7 +129,7 @@ def test_tag_with_class():
             ['open_tag',
              tag,
              ['tag_class', tag_class]]]
-        result = jade.parse(data)
+        result = jade.generate_data(data, pattern=jade.element)
         assert expected == result
 
         expected = """<%(tag)s class="%(tag_class)s"></%(tag)s>\n""" % dict(tag=tag, tag_class=tag_class)
@@ -149,7 +149,7 @@ def test_tag_with_id_and_class():
              tag,
              ['tag_id', tag_id],
              ['tag_class', tag_class]]]
-        result = jade.parse(data)
+        result = jade.generate_data(data, pattern=jade.element)
         assert expected == result
 
         expected = """<%(tag)s id="%(tag_id)s" class="%(tag_class)s"></%(tag)s>\n""" % dict(tag=tag, tag_id=tag_id, tag_class=tag_class)
@@ -168,7 +168,7 @@ def test_content():
              tag,
              ['content',
               content]]]
-        result = jade.parse(data)
+        result = jade.generate_data(data, pattern=jade.element)
         assert expected == result
 
         expected = """<%(tag)s>%(content)s</%(tag)s>\n""" % dict(tag=tag, content=content)
@@ -200,7 +200,7 @@ div#foo.bar
           "p",
           ['content',
            "A paragraph"]]]]
-    result = jade.parse(data)
+    result = jade.generate_data(data, pattern=jade.element)
     assert expected == result
 
     expected = '''<div id="foo" class="bar"><p>A paragraph</p></div>\n'''

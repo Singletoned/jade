@@ -143,9 +143,6 @@ def content():
                 " ")),
         pg.Words())
 
-def parse(text, pattern=element):
-    return pg.parse_string(text, pattern)
-
 def make_attr(head, rest, context=None):
     rest = iter(rest)
     attr_name = head[4:]

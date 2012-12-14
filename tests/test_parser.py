@@ -9,7 +9,7 @@ class test_attribute_list(unittest.TestCase):
     def test_simple(self):
         data = '''(href="foo")'''
         expected = ['attribute_list', ['attribute', "href", ['quoted_string', 'foo']]]
-        result = jade.parse(data, jade.attribute_list)
+        result = jade.generate_data(data, jade.attribute_list)
         assert expected == result
 
     def test_multiple(self):
@@ -18,7 +18,7 @@ class test_attribute_list(unittest.TestCase):
             'attribute_list',
             ['attribute', "href", ['quoted_string', 'foo']],
             ['attribute', "title", ['quoted_string', "Foo!"]]]
-        result = jade.parse(data, jade.attribute_list)
+        result = jade.generate_data(data, jade.attribute_list)
         assert expected == result
 
 class test_element(unittest.TestCase):
@@ -31,5 +31,5 @@ class test_element(unittest.TestCase):
               ['attribute', 'href',
                ['quoted_string', "/contact"]]],
              ['content', 'contact']]]
-        result = jade.parse(data, jade.element)
+        result = jade.generate_data(data, jade.element)
         assert expected == result
