@@ -206,3 +206,30 @@ div#foo.bar
     expected = '''<div id="foo" class="bar"><p>A paragraph</p></div>\n'''
     result = jade.to_html(data)
     assert expected == result
+
+def test_doctype():
+    data = """
+!!!
+html
+  body
+    div
+    """
+    expected = [
+        'document',
+        ['doctype',
+         "!!!"],
+        ['element',
+         ['open_tag',
+          'html'],
+         ['element',
+          ['open_tag',
+           'body'],
+           ['element',
+            ['open_tag',
+            'div']]]]]
+    result = jade.generate_data(data)
+    assert expected == result
+
+    expected = '''<!DOCTYPE html><html><body><div></div></body></html>\n'''
+    result = jade.to_html(data)
+    assert expected == result

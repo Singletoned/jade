@@ -27,6 +27,8 @@ def document():
             pg.Optional(
                 pg.Many(
                     blank_line))),
+        pg.Optional(
+            doctype),
         pg.OneOf(
             element,
             comment),
@@ -37,6 +39,11 @@ def document():
                     pg.OneOf(
                         element,
                         comment)))))
+
+def doctype():
+    return pg.AllOf(
+        "!!!",
+        pg.Ignore("\n"))
 
 def element():
     return pg.AllOf(
@@ -201,6 +208,17 @@ def make_comment(head, rest, context=None):
     rest = iter(rest)
     yield lxml.etree.Comment(rest.next())
 
+class DocType(object):
+    def __init__(self, string):
+        self.string = "<!DOCTYPE html>"
+
+    def to_string(self):
+        return self.string
+
+def make_doctype(head, rest, context=None):
+    rest = iter(rest)
+    yield DocType(rest.next())
+
 def make_element(head, rest, context=None):
     rest = list(rest)
     rest = iter(rest)
@@ -245,6 +263,7 @@ tag_funcs = {
     'element': make_element,
     'document': make_document,
     'comment': make_comment,
+    'doctype': make_doctype,
     }
 
 tag_dispatchers = dict(
