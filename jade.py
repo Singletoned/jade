@@ -150,27 +150,27 @@ def indent(data):
     for item in data:
         yield "  %s" % item
 
-def make_attr(head, rest):
+def make_attr(head, rest, context=None):
     rest = iter(rest)
     attr_name = head[4:]
     attr_value = rest.next()
     attr = '''%s="%s"''' % (attr_name, attr_value)
     return attr
 
-def make_content(head, rest):
+def make_content(head, rest, context=None):
     rest = iter(rest)
     return rest.next()
 
-def make_open_tag(head, rest):
+def make_open_tag(head, rest, context=None):
     rest = iter(rest)
     items = " ".join([do_render(i) for i in rest])
     return '''<%s>''' % items
 
-def make_close_tag(head, rest):
+def make_close_tag(head, rest, context=None):
     tag_name = iter(rest).next()
     return '''</%s>''' % tag_name
 
-def add_attributes(el, attributes):
+def add_attributes(el, attributes, context=None):
     attributes = list(attributes)
     for item in attributes:
         if len(item) == 2:
@@ -179,7 +179,7 @@ def add_attributes(el, attributes):
         else:
             (_, key, value_pair) = item
         if value_pair[0] == "attribute_value_code":
-            value = eval(value_pair[1])
+            value = eval(value_pair[1], context)
         else:
             value = value_pair[1]
         if value is None:
@@ -193,11 +193,11 @@ def add_attributes(el, attributes):
         else:
             el.attrib[key] = value
 
-def make_comment(head, rest):
+def make_comment(head, rest, context=None):
     rest = iter(rest)
     yield lxml.etree.Comment(rest.next())
 
-def make_element(head, rest):
+def make_element(head, rest, context=None):
     rest = list(rest)
     rest = iter(rest)
     open_tag = iter(rest.next())
@@ -207,7 +207,7 @@ def make_element(head, rest):
     open_tag = list(open_tag)
     for item in open_tag:
         if item[0] == 'attribute_list':
-            add_attributes(el, item[1:])
+            add_attributes(el, item[1:], context)
         elif item[0] == 'tag_class':
             el.add_class(None, item[1])
         elif item[0] == 'tag_id':
@@ -215,22 +215,22 @@ def make_element(head, rest):
         elif item[0] == 'content':
             el.text = item[1]
         elif item[0] == 'code':
-            val = eval(item[1])
+            val = eval(item[1], context)
             if val is None:
                 val = ""
             el.text = str(val)
     for item in rest:
         if item[0] == 'element':
-            sub_el = make_element(item[0], item[1:])
+            sub_el = make_element(item[0], item[1:], context)
             el.extend(sub_el)
         elif item[0] == 'comment':
-            el.extend(make_comment(item[0], item[1:]))
+            el.extend(make_comment(item[0], item[1:], context))
     yield el
 
-def make_document(head, rest):
+def make_document(head, rest, context=None):
     rest = list(rest)
     for el in rest:
-        for item in do_render(el):
+        for item in do_render(el, context):
             yield item
 
 tag_funcs = {
@@ -249,24 +249,24 @@ tag_dispatchers = dict(
     open_tag=make_open_tag,
     )
 
-def do_render(data):
+def do_render(data, context=None):
     if isinstance(data, basestring):
         return data
     else:
         rest = iter(data)
         head = rest.next()
         func = tag_funcs[head]
-        return func(head, rest)
+        return func(head, rest, context)
 
 def generate_data(text, pattern=document):
     data = pg.parse_string(text, pattern)
     return data
 
-def generate_elements(data):
+def generate_elements(data, context=None):
     data = iter(data)
     head = data.next()
     dispatcher = tag_dispatchers[head]
-    for item in dispatcher(head, data):
+    for item in dispatcher(head, data, context=context):
         yield item
 
 def generate_strings(elements, tidy=False):
@@ -279,7 +279,7 @@ def generate_strings(elements, tidy=False):
 
 def to_html(text, pattern=document, tidy=False, context=None):
     data = generate_data(text, pattern=document)
-    elements = generate_elements(data)
+    elements = generate_elements(data, context)
     strings = generate_strings(elements, tidy=tidy)
     if tidy:
         joiner = "\n"
