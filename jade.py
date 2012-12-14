@@ -146,10 +146,6 @@ def content():
 def parse(text, pattern=element):
     return pg.parse_string(text, pattern)
 
-def indent(data):
-    for item in data:
-        yield "  %s" % item
-
 def make_attr(head, rest, context=None):
     rest = iter(rest)
     attr_name = head[4:]
