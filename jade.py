@@ -57,7 +57,8 @@ def element():
                     pg.Many(
                         pg.OneOf(
                             element,
-                            comment))),
+                            comment,
+                            text))),
             pg.Ignore(newline_or_eof))))
 
 def comment():
@@ -72,6 +73,14 @@ def comment():
             pg.Many(
                 pg.Not(
                     newline_or_eof))),
+        pg.Ignore(newline_or_eof))
+
+def text():
+    return pg.AllOf(
+        pg.Ignore("| "),
+        pg.Join(
+            pg.Many(
+                pg.Not(newline_or_eof))),
         pg.Ignore(newline_or_eof))
 
 def open_tag():
@@ -247,6 +256,8 @@ def make_element(head, rest, context=None):
         if item[0] in ['element', 'sub_element']:
             sub_el = make_element(item[0], item[1:], context)
             el.extend(sub_el)
+        elif item[0] == 'text':
+            el.text = (el.text or '') + item[1]
         elif item[0] == 'comment':
             el.extend(make_comment(item[0], item[1:], context))
     yield el
