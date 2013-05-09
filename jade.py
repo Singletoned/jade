@@ -6,6 +6,7 @@ import itertools
 import lxml
 
 import wiseguy.html_tags
+import wiseguy.html
 
 import pegger as pg
 
@@ -15,51 +16,49 @@ alphanumerics = pg.Words(string.lowercase+string.uppercase+string.digits)
 identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-_")
 whitespace = pg.Words(" \t")
 
-def blank_line():
-    return pg.AllOf(
-        pg.Optional(
-            whitespace),
-        "\n")
+newline_or_eof = pg.OneOf("\n", pg.EOF())
 
 def document():
     return pg.AllOf(
-        pg.Ignore(
-            pg.Optional(
-                pg.Many(
-                    blank_line))),
         pg.Optional(
             doctype),
-        pg.OneOf(
-            element,
-            comment),
-        pg.Optional(
-            pg.Many(
-                pg.AllOf(
-                    pg.Ignore("\n"),
-                    pg.OneOf(
-                        element,
-                        comment)))))
+        pg.Many(
+            pg.AllOf(
+                pg.OneOf(
+                    element,
+                    comment),
+                pg.Optional(
+                    pg.Ignore(
+                    pg.Many(
+                        "\n"))))))
 
 def doctype():
     return pg.AllOf(
         "!!!",
-        pg.Ignore("\n"))
+        pg.Ignore(newline_or_eof))
+
+def sub_element():
+    return pg.AllOf(
+        pg.Ignore(": "),
+        open_tag,
+        pg.Optional(
+            sub_element))
 
 def element():
     return pg.AllOf(
         open_tag,
         pg.Optional(
-            pg.AllOf(
-                pg.Ignore(": ",),
-                element)),
+            sub_element),
+        pg.Ignore(
+            newline_or_eof),
         pg.Optional(
-            pg.Many(
-                pg.AllOf(
-                    pg.Ignore("\n"),
-                    pg.Indented(
+            pg.AllOf(
+                pg.Indented(
+                    pg.Many(
                         pg.OneOf(
                             element,
-                            comment))))))
+                            comment))),
+            pg.Ignore(newline_or_eof))))
 
 def comment():
     return pg.AllOf(
@@ -72,7 +71,8 @@ def comment():
         pg.Join(
             pg.Many(
                 pg.Not(
-                    "\n"))))
+                    newline_or_eof))),
+        pg.Ignore(newline_or_eof))
 
 def open_tag():
     return pg.AllOf(
@@ -94,7 +94,7 @@ def code():
         pg.Join(
             pg.Many(
                 pg.Not(
-                    "\n"))))
+                    newline_or_eof))))
 
 def tag_id():
     return pg.AllOf(
@@ -159,7 +159,9 @@ def content():
             pg.OneOf(
                 " | ",
                 " ")),
-        pg.Words())
+        pg.Join(
+            pg.Many(
+                pg.Not(newline_or_eof))))
 
 def make_attr(head, rest, context=None):
     rest = iter(rest)
@@ -206,7 +208,7 @@ def add_attributes(el, attributes, context=None):
 
 def make_comment(head, rest, context=None):
     rest = iter(rest)
-    yield lxml.etree.Comment(rest.next())
+    yield wiseguy.html.HtmlComment(rest.next())
 
 class DocType(object):
     def __init__(self, string):
@@ -220,7 +222,6 @@ def make_doctype(head, rest, context=None):
     yield DocType(rest.next())
 
 def make_element(head, rest, context=None):
-    rest = list(rest)
     rest = iter(rest)
     open_tag = iter(rest.next())
     _ = open_tag.next()
@@ -241,8 +242,9 @@ def make_element(head, rest, context=None):
             if val is None:
                 val = ""
             el.text = str(val)
+    rest = list(rest)
     for item in rest:
-        if item[0] == 'element':
+        if item[0] in ['element', 'sub_element']:
             sub_el = make_element(item[0], item[1:], context)
             el.extend(sub_el)
         elif item[0] == 'comment':
