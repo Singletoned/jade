@@ -298,7 +298,7 @@ def generate_strings(elements, tidy=False):
             if isinstance(el, DocType):
                 yield el.to_string()
             else:
-                yield wiseguy.html_tidy.tidy_html(el)
+                yield wiseguy.html_tidy.tidy_html(el, with_doctype=False)
     else:
         for el in elements:
             yield el.to_string()
