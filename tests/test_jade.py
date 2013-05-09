@@ -213,7 +213,7 @@ def test_doctype():
 html
   body
     div
-    """
+    """.strip()
     expected = [
         'document',
         ['doctype',
