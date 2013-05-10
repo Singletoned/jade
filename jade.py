@@ -17,6 +17,7 @@ identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-_"
 whitespace = pg.Words(" \t")
 
 newline_or_eof = pg.OneOf("\n", pg.EOF())
+newlines_or_eof = pg.OneOf(pg.Many("\n"), pg.EOF())
 
 def document():
     return pg.AllOf(
@@ -50,7 +51,7 @@ def element():
         pg.Optional(
             sub_element),
         pg.Ignore(
-            newline_or_eof),
+            newlines_or_eof),
         pg.Optional(
             pg.AllOf(
                 pg.Indented(
@@ -59,7 +60,7 @@ def element():
                             element,
                             comment,
                             text))),
-            pg.Ignore(newline_or_eof))))
+            pg.Ignore(newlines_or_eof))))
 
 def comment():
     return pg.AllOf(
