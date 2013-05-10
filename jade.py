@@ -5,7 +5,6 @@ import itertools
 
 import lxml
 
-import wiseguy.html_tags
 import wiseguy.html
 
 import pegger as pg
@@ -173,6 +172,11 @@ def content():
             pg.Many(
                 pg.Not(newline_or_eof))))
 
+html_builder = wiseguy.html.HtmlBuilder()
+
+def El(tag_name):
+    return getattr(html_builder, tag_name)()
+
 def make_attr(head, rest, context=None):
     rest = iter(rest)
     attr_name = head[4:]
@@ -236,7 +240,7 @@ def make_element(head, rest, context=None):
     open_tag = iter(rest.next())
     _ = open_tag.next()
     tag_name = open_tag.next()
-    el = getattr(wiseguy.html_tags, tag_name.upper())()
+    el = El(tag_name)
     open_tag = list(open_tag)
     for item in open_tag:
         if item[0] == 'attribute_list':
