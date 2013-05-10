@@ -326,6 +326,7 @@ def generate_strings(elements, tidy=False):
             yield el.to_string()
 
 def to_html(text, pattern=document, tidy=False, context=None):
+    text = text.decode('utf-8')
     data = generate_data(text, pattern=document)
     elements = generate_elements(data, context)
     strings = generate_strings(elements, tidy=tidy)
