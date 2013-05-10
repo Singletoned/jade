@@ -258,7 +258,11 @@ def make_element(head, rest, context=None):
             sub_el = make_element(item[0], item[1:], context)
             el.extend(sub_el)
         elif item[0] == 'text':
-            el.text = (el.text or '') + item[1]
+            if el.getchildren():
+                last_child = el.getchildren()[-1]
+                last_child.tail = (last_child.tail or '') + item[1]
+            else:
+                el.text = (el.text or '') + item[1]
         elif item[0] == 'comment':
             el.extend(make_comment(item[0], item[1:], context))
     yield el
