@@ -172,6 +172,10 @@ def content():
             pg.Many(
                 pg.Not(newline_or_eof))))
 
+
+class UnknownItemError(Exception):
+    pass
+
 html_builder = wiseguy.html.HtmlBuilder()
 
 def El(tag_name):
@@ -269,6 +273,8 @@ def make_element(head, rest, context=None):
                 el.text = (el.text or '') + item[1]
         elif item[0] == 'comment':
             el.extend(make_comment(item[0], item[1:], context))
+        else:
+            raise UnknownItemError(item)
     yield el
 
 def make_document(head, rest, context=None):
