@@ -239,7 +239,7 @@ def add_attributes(el, attributes, context=None):
 
 def make_comment(head, rest, context=None):
     rest = iter(rest)
-    yield wiseguy.html.HtmlComment(rest.next())
+    yield lxml.html.HtmlComment(rest.next())
 
 def make_block(head, rest, context=None):
     rest = iter(rest)
