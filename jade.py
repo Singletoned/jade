@@ -56,6 +56,7 @@ def element():
                 pg.Indented(
                     pg.Many(
                         pg.OneOf(
+                            block,
                             element,
                             comment,
                             text))),
@@ -73,6 +74,13 @@ def comment():
             pg.Many(
                 pg.Not(
                     newline_or_eof))),
+        pg.Ignore(newline_or_eof))
+
+def block():
+    return pg.AllOf(
+        pg.Ignore("block"),
+        pg.Ignore(" "),
+        identifier_parts,
         pg.Ignore(newline_or_eof))
 
 def text():
@@ -228,6 +236,9 @@ def make_comment(head, rest, context=None):
     rest = iter(rest)
     yield wiseguy.html.HtmlComment(rest.next())
 
+def make_block(head, rest, context=None):
+    yield html_builder.block({'data-id': rest[0]})
+
 class DocType(object):
     def __init__(self, string):
         self.string = "<!DOCTYPE html>"
@@ -273,6 +284,8 @@ def make_element(head, rest, context=None):
                 el.text = (el.text or '') + item[1]
         elif item[0] == 'comment':
             el.extend(make_comment(item[0], item[1:], context))
+        elif item[0] == 'block':
+            el.extend(make_block(item[0], item[1:], context))
         else:
             raise UnknownItemError(item)
     yield el
