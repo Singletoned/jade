@@ -13,6 +13,7 @@ import pegger as pg
 alphabet = pg.Words(string.lowercase+string.uppercase)
 alphanumerics = pg.Words(string.lowercase+string.uppercase+string.digits)
 identifier_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-_")
+filename_parts = pg.Words(string.lowercase+string.uppercase+string.digits+"-_.")
 whitespace = pg.Words(" \t")
 
 newline_or_eof = pg.OneOf("\n", pg.EOF())
@@ -22,15 +23,17 @@ def document():
     return pg.AllOf(
         pg.Optional(
             doctype),
-        pg.Many(
-            pg.AllOf(
-                pg.OneOf(
-                    element,
-                    comment),
-                pg.Optional(
-                    pg.Ignore(
-                    pg.Many(
-                        "\n"))))))
+        pg.OneOf(
+            extends,
+            pg.Many(
+                pg.AllOf(
+                    pg.OneOf(
+                        element,
+                        comment),
+                    pg.Optional(
+                        pg.Ignore(
+                            pg.Many(
+                                "\n")))))))
 
 def doctype():
     return pg.AllOf(
@@ -87,6 +90,17 @@ def block():
         pg.Ignore(newline_or_eof),
         pg.Optional(
             nested_elements))
+
+def extends():
+    return pg.AllOf(
+        pg.Ignore("extends"),
+        pg.Ignore(" "),
+        filename_parts,
+        pg.Ignore(newlines_or_eof),
+        pg.Optional(
+            pg.AllOf(
+                block,
+                pg.Ignore(newlines_or_eof))))
 
 def text():
     return pg.AllOf(
@@ -247,6 +261,22 @@ def make_block(head, rest, context=None):
     add_subelements(el, rest, context)
     yield el
 
+def make_extends(head, rest, context=None):
+    rest = iter(rest)
+    document = context['loader'](rest.next())
+    document = list(document)
+    for block in rest:
+        block_name = block[1]
+        block_rest = block[2][1:]
+        if len(block_rest) > 1:
+            block_el = El('div')
+            add_subelements(block_el, block_rest, context)
+        else:
+            block_el = make_element(block_rest[0][0], block_rest[0][1:], context).next()
+    for el in document:
+        el.replace("block[data-id='%s']"%block_name, block_el)
+        yield el
+
 class DocType(object):
     def __init__(self, string):
         self.string = "<!DOCTYPE html>"
@@ -313,6 +343,7 @@ tag_funcs = {
     'comment': make_comment,
     'doctype': make_doctype,
     'block': make_block,
+    'extends': make_extends,
     }
 
 tag_dispatchers = dict(
