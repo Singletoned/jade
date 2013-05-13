@@ -44,6 +44,17 @@ def sub_element():
         pg.Optional(
             sub_element))
 
+def nested_elements():
+    return pg.AllOf(
+        pg.Indented(
+            pg.Many(
+                pg.OneOf(
+                    block,
+                    element,
+                    comment,
+                    text))),
+        pg.Ignore(newlines_or_eof))
+
 def element():
     return pg.AllOf(
         open_tag,
@@ -52,15 +63,7 @@ def element():
         pg.Ignore(
             newlines_or_eof),
         pg.Optional(
-            pg.AllOf(
-                pg.Indented(
-                    pg.Many(
-                        pg.OneOf(
-                            block,
-                            element,
-                            comment,
-                            text))),
-            pg.Ignore(newlines_or_eof))))
+            nested_elements))
 
 def comment():
     return pg.AllOf(
@@ -81,7 +84,9 @@ def block():
         pg.Ignore("block"),
         pg.Ignore(" "),
         identifier_parts,
-        pg.Ignore(newline_or_eof))
+        pg.Ignore(newline_or_eof),
+        pg.Optional(
+            nested_elements))
 
 def text():
     return pg.AllOf(
@@ -283,6 +288,8 @@ def add_subelements(el, rest, context=None):
                 last_child.tail = (last_child.tail or '') + item[1]
             else:
                 el.text = (el.text or '') + item[1]
+        elif item[0] == 'nested_elements':
+            add_subelements(el, item[1:], context=context)
         else:
             el.extend(do_render(item, context))
 

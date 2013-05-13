@@ -195,11 +195,12 @@ div#foo.bar
          "div",
          ['tag_id', "foo"],
          ['tag_class', "bar"]],
-        ['element',
-         ['open_tag',
-          "p",
-          ['content',
-           "A paragraph"]]]]
+        ['nested_elements',
+         ['element',
+          ['open_tag',
+           "p",
+           ['content',
+            "A paragraph"]]]]]
     result = jade.generate_data(data, pattern=jade.element)
     assert expected == result
 
@@ -221,12 +222,14 @@ html
         ['element',
          ['open_tag',
           'html'],
-         ['element',
-          ['open_tag',
-           'body'],
-           ['element',
-            ['open_tag',
-            'div']]]]]
+         ['nested_elements',
+          ['element',
+           ['open_tag',
+            'body'],
+           ['nested_elements',
+            ['element',
+             ['open_tag',
+              'div']]]]]]]
     result = jade.generate_data(data)
     assert expected == result
 
