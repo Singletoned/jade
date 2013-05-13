@@ -272,6 +272,10 @@ def make_element(head, rest, context=None):
                 val = ""
             el.text = str(val)
     rest = list(rest)
+    add_subelements(el, rest, context)
+    yield el
+
+def add_subelements(el, rest, context=None):
     for item in rest:
         if item[0] == 'text':
             if el.getchildren():
@@ -281,7 +285,6 @@ def make_element(head, rest, context=None):
                 el.text = (el.text or '') + item[1]
         else:
             el.extend(do_render(item, context))
-    yield el
 
 def make_document(head, rest, context=None):
     rest = list(rest)
