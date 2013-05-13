@@ -242,7 +242,10 @@ def make_comment(head, rest, context=None):
     yield wiseguy.html.HtmlComment(rest.next())
 
 def make_block(head, rest, context=None):
-    yield html_builder.block({'data-id': rest.next()})
+    rest = iter(rest)
+    el = html_builder.block({'data-id': rest.next()})
+    add_subelements(el, rest, context)
+    yield el
 
 class DocType(object):
     def __init__(self, string):
