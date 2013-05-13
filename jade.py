@@ -237,7 +237,7 @@ def make_comment(head, rest, context=None):
     yield wiseguy.html.HtmlComment(rest.next())
 
 def make_block(head, rest, context=None):
-    yield html_builder.block({'data-id': rest[0]})
+    yield html_builder.block({'data-id': rest.next()})
 
 class DocType(object):
     def __init__(self, string):
@@ -273,21 +273,14 @@ def make_element(head, rest, context=None):
             el.text = str(val)
     rest = list(rest)
     for item in rest:
-        if item[0] in ['element', 'sub_element']:
-            sub_el = make_element(item[0], item[1:], context)
-            el.extend(sub_el)
-        elif item[0] == 'text':
+        if item[0] == 'text':
             if el.getchildren():
                 last_child = el.getchildren()[-1]
                 last_child.tail = (last_child.tail or '') + item[1]
             else:
                 el.text = (el.text or '') + item[1]
-        elif item[0] == 'comment':
-            el.extend(make_comment(item[0], item[1:], context))
-        elif item[0] == 'block':
-            el.extend(make_block(item[0], item[1:], context))
         else:
-            raise UnknownItemError(item)
+            el.extend(do_render(item, context))
     yield el
 
 def make_document(head, rest, context=None):
@@ -302,9 +295,11 @@ tag_funcs = {
     'content': make_content,
     'open_tag': make_open_tag,
     'element': make_element,
+    'sub_element': make_element,
     'document': make_document,
     'comment': make_comment,
     'doctype': make_doctype,
+    'block': make_block,
     }
 
 tag_dispatchers = dict(
