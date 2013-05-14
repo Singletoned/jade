@@ -91,6 +91,15 @@ def block():
         pg.Optional(
             nested_elements))
 
+def replace():
+    return pg.AllOf(
+        pg.Ignore("replace"),
+        pg.Ignore(" "),
+        identifier_parts,
+        pg.Ignore(newline_or_eof),
+        pg.Optional(
+            nested_elements))
+
 def extends():
     return pg.AllOf(
         pg.Ignore("extends"),
@@ -99,7 +108,7 @@ def extends():
         pg.Ignore(newlines_or_eof),
         pg.Optional(
             pg.Many(
-                block)))
+                replace)))
 
 def text():
     return pg.AllOf(
