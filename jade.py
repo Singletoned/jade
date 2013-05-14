@@ -100,6 +100,15 @@ def replace():
         pg.Optional(
             nested_elements))
 
+def append():
+    return pg.AllOf(
+        pg.Ignore("append"),
+        pg.Ignore(" "),
+        identifier_parts,
+        pg.Ignore(newline_or_eof),
+        pg.Optional(
+            nested_elements))
+
 def extends():
     return pg.AllOf(
         pg.Ignore("extends"),
@@ -108,7 +117,9 @@ def extends():
         pg.Ignore(newlines_or_eof),
         pg.Optional(
             pg.Many(
-                replace)))
+                pg.OneOf(
+                    replace,
+                    append))))
 
 def text():
     return pg.AllOf(
@@ -274,15 +285,24 @@ def make_extends(head, rest, context=None):
     document = context['loader'](rest.next())
     document = list(document)
     for block in rest:
+        block_type = block[0]
         block_name = block[1]
         block_rest = block[2][1:]
-        if len(block_rest) > 1:
-            block_el = El('div')
-            add_subelements(block_el, block_rest, context)
+        if block_type == 'replace':
+            if len(block_rest) > 1:
+                block_el = El('div')
+                add_subelements(block_el, block_rest, context)
+            else:
+                block_el = make_element(block_rest[0][0], block_rest[0][1:], context).next()
+            for el in document:
+                el.replace("block[data-id='%s']"%block_name, block_el)
+        elif block_type == 'append':
+            for item in block_rest:
+                block_el = make_element(item[0], item[1:], context).next()
+                for el in document:
+                    el.add("block[data-id='%s']"%block_name, block_el)
         else:
-            block_el = make_element(block_rest[0][0], block_rest[0][1:], context).next()
-        for el in document:
-            el.replace("block[data-id='%s']"%block_name, block_el)
+            assert False
     for el in document:
         yield el
 
