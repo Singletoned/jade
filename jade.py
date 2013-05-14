@@ -98,9 +98,8 @@ def extends():
         filename_parts,
         pg.Ignore(newlines_or_eof),
         pg.Optional(
-            pg.AllOf(
-                block,
-                pg.Ignore(newlines_or_eof))))
+            pg.Many(
+                block)))
 
 def text():
     return pg.AllOf(
@@ -273,8 +272,9 @@ def make_extends(head, rest, context=None):
             add_subelements(block_el, block_rest, context)
         else:
             block_el = make_element(block_rest[0][0], block_rest[0][1:], context).next()
+        for el in document:
+            el.replace("block[data-id='%s']"%block_name, block_el)
     for el in document:
-        el.replace("block[data-id='%s']"%block_name, block_el)
         yield el
 
 class DocType(object):
