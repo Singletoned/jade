@@ -82,32 +82,21 @@ def comment():
                     newline_or_eof))),
         pg.Ignore(newline_or_eof))
 
-def block():
-    return pg.AllOf(
-        pg.Ignore("block"),
-        pg.Ignore(" "),
-        identifier_parts,
-        pg.Ignore(newline_or_eof),
-        pg.Optional(
-            nested_elements))
+def custom_tag(tag_name):
+    def _inner():
+        return pg.AllOf(
+            pg.Ignore(tag_name),
+            pg.Ignore(" "),
+            identifier_parts,
+            pg.Ignore(newline_or_eof),
+            pg.Optional(
+                nested_elements))
+    _inner.__name__ = tag_name
+    return _inner
 
-def replace():
-    return pg.AllOf(
-        pg.Ignore("replace"),
-        pg.Ignore(" "),
-        identifier_parts,
-        pg.Ignore(newline_or_eof),
-        pg.Optional(
-            nested_elements))
-
-def append():
-    return pg.AllOf(
-        pg.Ignore("append"),
-        pg.Ignore(" "),
-        identifier_parts,
-        pg.Ignore(newline_or_eof),
-        pg.Optional(
-            nested_elements))
+block = custom_tag('block')
+replace = custom_tag('replace')
+append = custom_tag('append')
 
 def extends():
     return pg.AllOf(
