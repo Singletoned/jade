@@ -401,10 +401,17 @@ def generate_strings(elements, tidy=False):
         for el in elements:
             yield el.to_string()
 
+def remove_blocks(elements):
+    for el in elements:
+        if not isinstance(el, (lxml.html.HtmlComment, DocType)):
+            el.extract("block")
+        yield el
+
 def to_html(text, pattern=document, tidy=False, context=None):
     text = text.decode('utf-8')
     data = generate_data(text, pattern=document)
     elements = generate_elements(data, context)
+    elements = remove_blocks(elements)
     strings = generate_strings(elements, tidy=tidy)
     if tidy:
         joiner = "\n"
