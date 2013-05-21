@@ -285,7 +285,11 @@ def make_extends(head, rest, context=None):
                 block_el = El('div')
                 add_subelements(block_el, block_rest, context)
             else:
-                block_el = make_element(block_rest[0][0], block_rest[0][1:], context).next()
+                block_rest = block_rest[0]
+                if block_rest[0] == 'text':
+                    block_el = block_rest[1]
+                else:
+                    block_el = make_element(block_rest[0], block_rest[1:], context).next()
             for el in document:
                 el.replace("block[data-id='%s']"%block_name, block_el)
         elif block_type == 'append':
