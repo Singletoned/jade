@@ -407,11 +407,16 @@ def remove_blocks(elements):
             el.extract("block")
         yield el
 
-def to_html(text, pattern=document, tidy=False, context=None):
+def to_elements(text, pattern=document, tidy=False, context=None):
     text = text.decode('utf-8')
     data = generate_data(text, pattern=document)
     elements = generate_elements(data, context)
     elements = remove_blocks(elements)
+    for element in elements:
+        yield element
+
+def to_html(text, pattern=document, tidy=False, context=None):
+    elements = to_elements(text, pattern, tidy, context)
     strings = generate_strings(elements, tidy=tidy)
     if tidy:
         joiner = "\n"
