@@ -22,6 +22,9 @@ newlines_or_eof = pg.OneOf(pg.Many("\n"), pg.EOF())
 def document():
     return pg.AllOf(
         pg.Optional(
+            pg.Ignore(
+                newlines_or_eof)),
+        pg.Optional(
             doctype),
         pg.OneOf(
             extends,
