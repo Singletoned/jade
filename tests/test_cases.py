@@ -14,7 +14,12 @@ def loader(filename):
     elements = jade.generate_elements(data)
     return elements
 
-context = dict(loader=loader)
+def add_span(text):
+    return jade.to_elements("span | %s"%text).next()
+
+context = dict(
+    loader=loader,
+    add_span=add_span)
 
 def test_cases():
     def do_test(filename):

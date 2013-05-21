@@ -32,6 +32,7 @@ def document():
                 pg.AllOf(
                     pg.OneOf(
                         element,
+                        code_block,
                         comment),
                     pg.Optional(
                         pg.Ignore(
@@ -56,6 +57,7 @@ def nested_elements():
             pg.Many(
                 pg.OneOf(
                     block,
+                    code_block,
                     element,
                     comment,
                     text))),
@@ -83,6 +85,14 @@ def comment():
             pg.Many(
                 pg.Not(
                     newline_or_eof))),
+        pg.Ignore(newline_or_eof))
+
+def code_block():
+    return pg.AllOf(
+        pg.Ignore("!="),
+        pg.Join(
+            pg.Many(
+                pg.Not(newline_or_eof))),
         pg.Ignore(newline_or_eof))
 
 def custom_tag(tag_name):
@@ -349,13 +359,18 @@ def add_subelements(el, rest, context=None):
         elif item[0] == 'nested_elements':
             add_subelements(el, item[1:], context=context)
         else:
-            el.extend(do_render(item, context))
+            for sub_item in do_render(item, context):
+                el.add(None, sub_item)
 
 def make_document(head, rest, context=None):
     rest = list(rest)
     for el in rest:
         for item in do_render(el, context):
             yield item
+
+def make_code_block(head, rest, context=None):
+    for item in rest:
+        yield eval(item, context)
 
 tag_funcs = {
     'tag_id': make_attr,
@@ -369,6 +384,7 @@ tag_funcs = {
     'doctype': make_doctype,
     'block': make_block,
     'extends': make_extends,
+    'code_block': make_code_block,
     }
 
 tag_dispatchers = dict(
