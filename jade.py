@@ -181,12 +181,15 @@ def quoted_string():
             pg.Ignore('"')))
 
 def attribute_value_code():
-    return pg.Join(
-        pg.Many(
-            pg.Not(
-                pg.OneOf(
-                    ")",
-                    ","))))
+    return pg.OneOf(
+        pg.AllOf(
+            pg.Ignore("{{"),
+            pg.Join(
+                pg.Many(
+                    pg.Not(
+                        "}}"))),
+            pg.Ignore("}}")),
+        identifier_parts)
 
 def attribute():
     return pg.OneOf(
