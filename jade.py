@@ -8,6 +8,7 @@ import lxml
 import wiseguy.html
 
 import pegger as pg
+from pegger import lazy
 
 
 alphabet = pg.Words(string.lowercase+string.uppercase)
@@ -19,6 +20,7 @@ whitespace = pg.Words(" \t")
 newline_or_eof = pg.OneOf("\n", pg.EOF())
 newlines_or_eof = pg.OneOf(pg.Many("\n"), pg.EOF())
 
+@lazy
 def document():
     return pg.AllOf(
         pg.Optional(
@@ -39,11 +41,13 @@ def document():
                             pg.Many(
                                 "\n")))))))
 
+@lazy
 def doctype():
     return pg.AllOf(
         "!!!",
         pg.Ignore(newline_or_eof))
 
+@lazy
 def sub_element():
     return pg.AllOf(
         pg.Ignore(": "),
@@ -51,6 +55,7 @@ def sub_element():
         pg.Optional(
             sub_element))
 
+@lazy
 def nested_elements():
     return pg.AllOf(
         pg.Indented(
@@ -63,6 +68,7 @@ def nested_elements():
                     text))),
         pg.Ignore(newlines_or_eof))
 
+@lazy
 def element():
     return pg.AllOf(
         open_tag,
@@ -73,6 +79,7 @@ def element():
         pg.Optional(
             nested_elements))
 
+@lazy
 def comment():
     return pg.AllOf(
         pg.Optional(
@@ -87,6 +94,7 @@ def comment():
                     newline_or_eof))),
         pg.Ignore(newline_or_eof))
 
+@lazy
 def code_block():
     return pg.AllOf(
         pg.Ignore("!="),
@@ -96,21 +104,21 @@ def code_block():
         pg.Ignore(newline_or_eof))
 
 def custom_tag(tag_name):
-    def _inner():
-        return pg.AllOf(
+    return pg.NamedPattern(
+        tag_name,
+        pg.AllOf(
             pg.Ignore(tag_name),
             pg.Ignore(" "),
             identifier_parts,
             pg.Ignore(newline_or_eof),
             pg.Optional(
-                nested_elements))
-    _inner.__name__ = tag_name
-    return _inner
+                nested_elements)))
 
 block = custom_tag('block')
 replace = custom_tag('replace')
 append = custom_tag('append')
 
+@lazy
 def extends():
     return pg.AllOf(
         pg.Ignore("extends"),
@@ -123,6 +131,7 @@ def extends():
                     replace,
                     append))))
 
+@lazy
 def text():
     return pg.AllOf(
         pg.Ignore("| "),
@@ -131,6 +140,7 @@ def text():
                 pg.Not(newline_or_eof))),
         pg.Ignore(newline_or_eof))
 
+@lazy
 def open_tag():
     return pg.AllOf(
         alphanumerics,
@@ -145,6 +155,7 @@ def open_tag():
                 content,
                 code)))
 
+@lazy
 def code():
     return pg.AllOf(
         pg.Ignore("= "),
@@ -153,16 +164,19 @@ def code():
                 pg.Not(
                     newline_or_eof))))
 
+@lazy
 def tag_id():
     return pg.AllOf(
         pg.Ignore("#"),
         identifier_parts)
 
+@lazy
 def tag_class():
     return pg.AllOf(
         pg.Ignore("."),
         identifier_parts)
 
+@lazy
 def quoted_string():
     return pg.OneOf(
         pg.AllOf(
@@ -180,6 +194,7 @@ def quoted_string():
                         pg.Not('"')))),
             pg.Ignore('"')))
 
+@lazy
 def attribute_value_code():
     return pg.OneOf(
         pg.AllOf(
@@ -191,6 +206,7 @@ def attribute_value_code():
             pg.Ignore("}}")),
         identifier_parts)
 
+@lazy
 def attribute():
     return pg.OneOf(
         pg.AllOf(
@@ -201,6 +217,7 @@ def attribute():
                 attribute_value_code)),
         alphanumerics)
 
+@lazy
 def attribute_list():
     return pg.AllOf(
         pg.Ignore("("),
@@ -213,6 +230,7 @@ def attribute_list():
                     attribute))),
         pg.Ignore(")"))
 
+@lazy
 def content():
     return pg.AllOf(
         pg.Ignore(
