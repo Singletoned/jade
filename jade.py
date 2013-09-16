@@ -424,7 +424,7 @@ def do_render(data, context=None):
         return func(head, rest, context)
 
 def generate_data(text, pattern=document):
-    data = pg.parse_string(text, pattern)
+    data, rest = pattern(text)
     return data
 
 def generate_elements(data, context=None):
