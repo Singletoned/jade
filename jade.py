@@ -305,7 +305,7 @@ def make_block(head, rest, context=None):
 
 def make_extends(head, rest, context=None):
     rest = iter(rest)
-    document = context['loader'](rest.next())
+    document = context['loader'](rest.next(), context)
     document = list(document)
     for block in rest:
         block_type = block[0]

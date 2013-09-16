@@ -7,11 +7,11 @@ import jade
 cases = path.path(__file__).dirname().child("cases")
 
 
-def loader(filename):
+def loader(filename, context):
     f = cases / filename
     src = f.text()
     data = jade.generate_data(src)
-    elements = jade.generate_elements(data)
+    elements = jade.generate_elements(data, context)
     return elements
 
 def add_span(text):
@@ -19,7 +19,8 @@ def add_span(text):
 
 context = dict(
     loader=loader,
-    add_span=add_span)
+    add_span=add_span,
+    foo="FOO")
 
 def test_cases():
     def do_test(filename):
