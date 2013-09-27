@@ -305,7 +305,7 @@ def make_block(head, rest, context=None):
 
 def make_extends(head, rest, context=None):
     rest = iter(rest)
-    document = context['loader'](rest.next())
+    document = context['loader'](rest.next(), context)
     document = list(document)
     for block in rest:
         block_type = block[0]
@@ -424,7 +424,7 @@ def do_render(data, context=None):
         return func(head, rest, context)
 
 def generate_data(text, pattern=document):
-    data = pg.parse_string(text, pattern)
+    data, rest = pattern(text)
     return data
 
 def generate_elements(data, context=None):
