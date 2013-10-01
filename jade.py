@@ -259,7 +259,10 @@ def make_attr(head, rest, context=None):
 
 def make_content(head, rest, context=None):
     rest = iter(rest)
-    return rest.next()
+    text = rest.next()
+    if context and context.has_key('_text_filter'):
+        text = context['_text_filter'](text)
+    return text
 
 def make_open_tag(head, rest, context=None):
     rest = iter(rest)
@@ -318,7 +321,7 @@ def make_extends(head, rest, context=None):
             else:
                 block_rest = block_rest[0]
                 if block_rest[0] == 'text':
-                    block_el = block_rest[1]
+                    block_el = make_content(block_rest[0], block_rest[1:], context=context)
                 else:
                     block_el = make_element(block_rest[0], block_rest[1:], context).next()
             for el in document:
@@ -359,7 +362,7 @@ def make_element(head, rest, context=None):
         elif item[0] == 'tag_id':
             el.attrib['id'] = item[1]
         elif item[0] == 'content':
-            el.text = item[1]
+            el.text = make_content(item[0], item[1:], context=context)
         elif item[0] == 'code':
             val = eval(item[1], context)
             if val is None:
@@ -372,11 +375,12 @@ def make_element(head, rest, context=None):
 def add_subelements(el, rest, context=None):
     for item in rest:
         if item[0] == 'text':
+            text = make_content(item[0], item[1:], context=context)
             if el.getchildren():
                 last_child = el.getchildren()[-1]
-                last_child.tail = (last_child.tail or '') + item[1]
+                last_child.tail = (last_child.tail or '') + text
             else:
-                el.text = (el.text or '') + item[1]
+                el.text = (el.text or '') + text
         elif item[0] == 'nested_elements':
             add_subelements(el, item[1:], context=context)
         else:
