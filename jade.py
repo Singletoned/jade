@@ -471,3 +471,7 @@ def to_html(text, pattern=document, tidy=False, context=None):
     else:
         joiner = ""
     return joiner.join(strings)
+
+def jade(text, context=None):
+    elements = to_elements(text, context=context)
+    return elements.next()
