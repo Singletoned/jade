@@ -69,8 +69,10 @@ def test_make_element():
         assert expected == result
 
     items = [
-        ('element', [['open_tag', "p"]], ['''<p></p>\n'''])
-        ]
+        ('element', [['open_tag', "p"]], ['''<p></p>\n''']),
+        ('element',
+         [['open_tag', "a", ['attribute_list', ['attribute', 'href', ['quoted_string', 'foo']]]]],
+         ['''<a href="foo"></a>\n'''])]
 
     for head, rest, expected in items:
         yield do_test, head, rest, expected
