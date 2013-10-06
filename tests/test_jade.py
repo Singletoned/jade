@@ -63,19 +63,18 @@ def test_make_close_tag():
         yield do_test, head, rest, expected
 
 def test_make_element():
-    def do_test(head, rest, expected):
-        result = jade.make_element(head, rest)
+    def do_test(rest, expected):
+        result = jade.make_element('element', rest)
         result = [el.to_string() for el in result]
         assert expected == result
 
     items = [
-        ('element', [['open_tag', "p"]], ['''<p></p>\n''']),
-        ('element',
-         [['open_tag', "a", ['attribute_list', ['attribute', 'href', ['quoted_string', 'foo']]]]],
+        ([['open_tag', "p"]], ['''<p></p>\n''']),
+        ([['open_tag', "a", ['attribute_list', ['attribute', 'href', ['quoted_string', 'foo']]]]],
          ['''<a href="foo"></a>\n'''])]
 
-    for head, rest, expected in items:
-        yield do_test, head, rest, expected
+    for rest, expected in items:
+        yield do_test, rest, expected
 
 def test_do_render():
     def do_test(data, expected):
