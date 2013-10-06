@@ -65,13 +65,13 @@ def test_make_close_tag():
 def test_make_element():
     def do_test(rest, expected):
         result = jade.make_element('element', rest)
-        result = [el.to_string() for el in result]
+        result = [el.to_string().strip() for el in result]
         assert expected == result
 
     items = [
-        ([['open_tag', "p"]], ['''<p></p>\n''']),
+        ([['open_tag', "p"]], ['''<p></p>''']),
         ([['open_tag', "a", ['attribute_list', ['attribute', 'href', ['quoted_string', 'foo']]]]],
-         ['''<a href="foo"></a>\n'''])]
+         ['''<a href="foo"></a>'''])]
 
     for rest, expected in items:
         yield do_test, rest, expected
