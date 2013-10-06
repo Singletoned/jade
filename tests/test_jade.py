@@ -71,7 +71,15 @@ def test_make_element():
     items = [
         ([['open_tag', "p"]], ['''<p></p>''']),
         ([['open_tag', "a", ['attribute_list', ['attribute', 'href', ['quoted_string', 'foo']]]]],
-         ['''<a href="foo"></a>'''])]
+         ['''<a href="foo"></a>''']),
+        ([['open_tag', "a", ['tag_class', 'foo']]],
+         ['''<a class="foo"></a>''']),
+        ([['open_tag', "a", ['tag_id', 'foo']]],
+         ['''<a id="foo"></a>''']),
+        ([['open_tag', "a", ['content', "foo"]]],
+         ['''<a>foo</a>''']),
+        ([['open_tag', "a", ['code', "'foo'.replace('o', '0')"]]],
+         ['''<a>f00</a>'''])]
 
     for rest, expected in items:
         yield do_test, rest, expected
